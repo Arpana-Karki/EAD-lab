@@ -1,0 +1,145 @@
+<h2>🌱 Your Daily Habits</h2>
+<p><a href="{% url 'add_habit' %}">➕ Add Habit</a> | <a href="{% url 'logout' %}">Logout</a></p>
+
+<ul class="habit-list">
+  {% for habit in habits %}
+    <li class="{% if habit.is_done %}completed{% else %}pending{% endif %}">
+      <strong class="habit-name {% if habit.is_done %}done{% endif %}">
+        {{ habit.name }}
+      </strong>
+      - {{ habit.description }}
+      <span class="habit-actions">
+        [<a href="{% url 'toggle_habit' habit.pk %}">✅ Toggle</a>]
+        [<a href="{% url 'edit_habit' habit.pk %}">✏️ Edit</a>]
+        [<a href="{% url 'delete_habit' habit.pk %}">🗑️ Delete</a>]
+      </span>
+    </li>
+  {% empty %}
+    <li class="empty">No habits added yet.</li>
+  {% endfor %}
+</ul>
+
+<h3>📊 Habit Completion Chart</h3>
+<div class="chart-container">
+  <canvas id="habitChart"></canvas>
+</div>
+
+<style>
+  body {
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(to right, #f5f7fa, #c3cfe2);
+    color: #2c3e50;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  h2, h3 {
+    text-align: center;
+    color: #34495e;
+  }
+
+  p {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  a {
+    color: #2980b9;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  a:hover {
+    color: #1abc9c;
+    text-decoration: underline;
+  }
+
+  .habit-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 40px;
+  }
+
+  .habit-list li {
+    background: #ffffff;
+    border-left: 6px solid #3498db;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin-bottom: 15px;
+    padding: 15px 20px;
+    transition: 0.3s ease;
+  }
+
+  .habit-list li.completed {
+    border-left-color: #2ecc71;
+    background-color: #eafaf1;
+  }
+
+  .habit-list li.pending {
+    border-left-color: #e74c3c;
+    background-color: #fff5f5;
+  }
+
+  .habit-name.done {
+    text-decoration: line-through;
+    color: #7f8c8d;
+  }
+
+  .habit-actions {
+    margin-top: 8px;
+    font-size: 14px;
+    display: block;
+    color: #7f8c8d;
+  }
+
+  .empty {
+    text-align: center;
+    color: #888;
+  }
+
+  .chart-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  #habitChart {
+    width: 100% !important;
+    height: 300px !important;
+  }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('habitChart').getContext('2d');
+const habitChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+        labels: ['Done', 'Not Done'],
+        datasets: [{
+            data: [{{ done_count }}, {{ not_done_count }}],
+            backgroundColor: ['#2ecc71', '#e74c3c']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+            },
+            title: {
+                display: true,
+                text: 'Habit Completion',
+                font: {
+                  size: 16
+                }
+            }
+        }
+    }
+});
+</script>
